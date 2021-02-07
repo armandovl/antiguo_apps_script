@@ -1,6 +1,6 @@
 function onOpen() {
   var menusX = SpreadsheetApp.getUi();
-  menusX.createMenu('Nuevo Menú')
+  menusX.createMenu('Nuevo MenÃº')
       .addItem('Ejecutar 0', 'myFunction')
       .addSeparator()
       
@@ -21,19 +21,15 @@ function onOpen() {
       .addToUi();
 }
 
-
 function myFunction() {
   Browser.msgBox("Funcion cero");
 }
-
 function funcionUno(){
-Browser.msgBox("Soy la función uno")
+Browser.msgBox("Soy la funciÃ³n uno")
 }
-
 
 function funcionDos(){
 Browser.msgBox("Soy la funcion dos")
-
 }
 
 function funcionTres(){
