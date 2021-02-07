@@ -1,0 +1,127 @@
+function nada(){
+Browser.msgBox('Mensaje de Bienvenida');
+}
+
+
+function hacerconstancia() {
+
+  //crear una referencia a la hoja activa que es la que está llamando a este script
+  //se extraen los valores de todo el rango de celdas con datos
+  var sps = SpreadsheetApp.getActiveSpreadsheet();
+  //una spreadsheet tiene un arreglo de sheets, la 0 es la primera
+  var sheet = sps.getSheets()[0];
+  var datos = sheet.getDataRange().getValues();
+  var nums = sheet.getDataRange().getNumRows() -1;
+  
+  //var file = DriveApp.getFileById("1GjKeFtuAJiYWv3AkQdT7eXWS5Tnn3MTr9wHx9BsETyo");
+  
+  
+  
+  //recorrer los valores de las celdas 
+  //se comienza con 1 ya que la primera posición, la 0, tiene las cebeceras
+ 
+  var contadorFila=2;
+  
+  for(var i = 1; i <= nums; i++){
+    var email = datos[i][4];
+    var nombre = datos[i][2];
+    var apellidos = datos[i][3];
+    var usuario = datos[i][0];
+    var sena = datos[i][1]; 
+    
+    //var invitacion=  DriveApp.getFileById("18iJLtGJvPDxV-umRjGapoG-U4mfEImuDGtt2TV3ORbs");
+    var mensaje="Aqui va el mensaje del correo";
+    
+    
+    /**************Aquí hacemos la copia del archivo constancia************************/
+  
+    nombreCopia=("Invitación para " + nombre +" "+ apellidos);
+
+    documentoCopiado= DriveApp.getFileById("1bZcWLOnio2Hyncz11mU0-GmDI0VHk199OvjZRzTpG2k").makeCopy(nombreCopia);
+
+    //Browser.msgBox(documentoCopiado.getId());
+  
+    var idNuevoDocumento = (documentoCopiado.getId());
+  
+    /************* Aquí reemplazamos el texto en el nuevo documento **************************************/
+  
+    var documentoParaCambiarTexto = DocumentApp.openById(idNuevoDocumento);
+
+    documentoParaCambiarTexto.getBody().replaceText("XXNombreXX",nombre);
+    documentoParaCambiarTexto.getBody().replaceText("XXApellidosXX",apellidos);
+    documentoParaCambiarTexto.getBody().replaceText("XXUsuarioXX",usuario);
+    documentoParaCambiarTexto.getBody().replaceText("XXSenaXX",sena);
+    
+   var hojaCalculo=SpreadsheetApp.openByUrl("https://docs.google.com/spreadsheets/d/16M6dkYx0fXOegMqg9lDMQD_ufaplJri3CPLNDGN2Tf8/edit#gid=0");  
+   var hojaDatos= hojaCalculo.getSheetByName('Hoja 1');
+   var ultimaFila= hojaDatos.getLastRow();   
+
+   hojaDatos.getRange(contadorFila, 7).setValue(idNuevoDocumento);
+   hojaDatos.getRange(contadorFila, 6).setValue(email);
+
+var contadorFila=contadorFila+1
+    
+  } //aquí acaba el for
+
+}
+
+
+function enviarMail() {
+  //crear una referencia a la hoja activa que es la que está llamando a este script
+  //se extraen los valores de todo el rango de celdas con datos
+  var sps = SpreadsheetApp.getActiveSpreadsheet();
+  //una spreadsheet tiene un arreglo de sheets, la 0 es la primera
+  var sheet = sps.getSheets()[0];
+  var datos = sheet.getDataRange().getValues();
+  var nums = sheet.getDataRange().getNumRows() -1;
+  
+  //var file = DriveApp.getFileById("1GjKeFtuAJiYWv3AkQdT7eXWS5Tnn3MTr9wHx9BsETyo");
+  
+  
+  
+  //recorrer los valores de las celdas 
+  //se comienza con 1 ya que la primera posición, la 0, tiene las cebeceras
+ 
+  
+  for(var i = 1; i <= nums; i++){
+    var email = datos[i][4];
+    var nombre = datos[i][2];
+    var apellidos = datos[i][3];
+    var usuario = datos[i][0];
+    var sena = datos[i][1];
+    var idDocumento = datos[i][8]; 
+    
+    var invitacion=  DriveApp.getFileById(idDocumento);
+    var mensaje="Estimado "+ nombre + "\n" + "Hacemos uso de este medio para hacerte llegar la información sobre la nueva plataforma: Comunidad de Apredizaje Digital CAD";
+    
+    GmailApp.sendEmail(email, "Comunidad de Aprendizaje Digital", mensaje, {attachments:[invitacion]});
+
+    
+  } /*aqui acaba el for*/
+   
+}
+
+// *******************aquí va el menú**********************
+function onOpen() {
+  var menusX = SpreadsheetApp.getUi();
+  menusX.createMenu('Nuevo Menú')
+      .addItem('Ejecutar 0', 'nada')
+      .addSeparator()
+      
+      .addItem('Ejecutar 1','funcionUno')
+      //.addSeparator() 
+      
+      .addItem('Ejecutar 2','funcionDos')
+      //.addSeparator()
+      
+      .addItem('Ejecutar 3','funcionDos')
+      .addSeparator()
+      
+      .addSubMenu(menusX.createMenu('alertas')
+          .addItem('Alerta 1', 'nada')
+          .addItem('Alerta 2', 'nada')
+          )
+          
+      .addToUi();
+}
+

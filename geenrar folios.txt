@@ -1,0 +1,36 @@
+function sequenceNumberOnFormSubmit() {
+	// llamamos la funcion para generar el numero consecutivo
+    var folio = generarfolio();
+	var registro = e.values[0];
+	var nombre = e.values[3];
+	var correo = e.values[2];
+	
+  var asunto = "Solicitud numero: " + folio;
+
+	var email_plano = "Hola " + nombre + "!" +
+					"\n\n" + 
+                      "Hemos recibido tu solicitud eenviada el : " + registro +
+					"\n\n" + 
+					"Para seguir el estatus tu folio es " + folio;
+	var email_html =  "Hola " + nombre + "!" + 
+					"<br/><br/>" + 
+					"Hemos recibido tu solicitud eenviada el <i>" + registro + "</i>" +
+					"<br/><br/>" + 
+					"Para seguir el estatus tu folio es <font color=\"red\"><strong>" + folio + "</strong></font>";
+
+	var advancedOpts = { name: "Forms - Ramon Valdes", htmlBody: html_body };
+	MailApp.sendEmail(correo, asunto, email_plano, advancedOpts);
+}
+
+function generarfolio() {
+	// obtenemos la hoja de calculo donde guardamos las respuestas
+	var hoja = SpreadsheetApp.getActiveSheet();
+	// Obtenemos la ultima fila con datos
+	var fila =  SpreadsheetApp.getActiveSheet().getLastRow();
+	// Numero consecutivo menos 1, esto debido a los titulos
+	var folio = fila - 1;
+	// Establecemmos (o escribimos) el valor en la selda indicada. Cambiar e 4 por la columna deseada
+	hoja.getRange(fila,6).setValue(folio);
+	// REGRESAMOS EL NUMERO SECUENCIAL
+	return folio;
+}

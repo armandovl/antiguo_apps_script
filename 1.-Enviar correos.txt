@@ -1,0 +1,42 @@
+function enviarMail() {
+  //crear una referencia a la hoja activa que es la que está llamando a este script
+  //se extraen los valores de todo el rango de celdas con datos
+  var sps = SpreadsheetApp.getActiveSpreadsheet();
+  //una spreadsheet tiene un arreglo de sheets, la 0 es la primera
+  var sheet = sps.getSheets()[0];
+  var datos = sheet.getDataRange().getValues();
+  var nums = sheet.getDataRange().getNumRows() -1;
+  
+  //var file = DriveApp.getFileById("1GjKeFtuAJiYWv3AkQdT7eXWS5Tnn3MTr9wHx9BsETyo");
+  
+  
+  
+  //recorrer los valores de las celdas 
+  //se comienza con 1 ya que la primera posición, la 0, tiene las cebeceras
+ 
+  
+  for(var i = 1; i <= nums; i++){
+    var email = datos[i][4];
+    var nombre = datos[i][2];
+    var apellidos = datos[i][3];
+    var usuario = datos[i][0];
+    var sena = datos[i][1];
+    //var idDocumento = datos[i][8]; 
+    
+    //var invitacion=  DriveApp.getFileById(idDocumento);
+    var mensaje="Estimado "+ nombre + "\n" + "Hacemos uso de este medio para hacerte llegar la información sobre la nueva plataforma: Comunidad de Apredizaje Digital CAD";
+    var mensaje2= "\n"+ "Como parte de las acciones que la Dirección General de Instrumentación de los Programas Agroforestales tiene con el Programa, se tiene la de contribuir a fortalecer el desarrollo de capacidades del recurso humano, así como la de gestionar de manera articulada información que logré contribuir aalcanzar los indicadores Programa, en tal sentido, se ha logrado diseñar y desarrollar un espacio virtual.Este espacio virtual, lo hemos denominado, 'Comunidad de Aprendizaje Digital'";
+    var mensaje3= "\n"+ "para ingresar visita:   " + "http://sembrando-vida.com/seguimiento/";
+    var mensaje4= "\n Usuario:  "+ usuario + "\n Contraeña:  "+ sena;
+    var mensaje5= "\n NO RESPONDER A ESTE CORREO, para cualquier duda aclaracion escribir a sembrado.vidapsv@gmail.com"
+   
+    
+ 
+
+    GmailApp.sendEmail(email, "Alta CAD Sembrando Vida", mensaje + mensaje2 + mensaje3 + mensaje4+mensaje5);
+
+    
+  } /*aqui acaba el for*/
+ 
+  
+}

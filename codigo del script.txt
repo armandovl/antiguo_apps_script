@@ -1,0 +1,130 @@
+/*
+Seguimiento de formularios
+Versión 2.1 de Junio de 2012
+Versión 2.0 de Enero de 2012
+Este script facilita la recopilación de respuestas no anóninmas con los formularios de Google.
+
+Coregido en Junio de 2012:
+- Celda B29 corregida, agregada la clave
+- Función ID codifica URI Component para evitar problemas de texto
+
+Hecho Enero 2012:
+- Usar clave de encriptación - testeado
+- Tomar los datos de la tabla de datos fija, en vez del rango marcado - testeado
+- Función de menú "revelar emails" - test bug por el signo igual añadido al final - se eliminó el = - testeado
+- Función "revelar emails", cómo reconocer el final de las respuestas - testeado
+- Reescribir la ayudita - testeado
+- Test
+
+TODO:
+- Menú para reducir a una sola las respuestas múltiples de un mismo autor
+
+*/
+
+// Agrega los menúes
+function onOpen(){
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var menuEntries = [{name: "Enviar formulario por GMail", functionName: "enviarEmailsHasheados"},
+                     {name: "Revelar autor en las respuestas", functionName: "revelarAutores"},
+                     {name: "Ayudita", functionName: "ayuda"}];
+  ss.addMenu("Seguimiento", menuEntries);
+}
+
+function enviarEmailsTransparentes(){
+  enviarEmails(false);
+}
+
+function enviarEmailsHasheados(){
+  enviarEmails(true);
+}
+
+// Calcula el id a partir de un email y una clave.  Esta función se puede usar en celdas.
+function id(email, clave){
+  if(!clave)
+    clave = SpreadsheetApp.getActiveSpreadsheet().getRangeByName('clave').getValue();
+  return encodeURIComponent(Utilities.base64Encode(Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, clave + email)));
+}
+
+/*
+Esta función envía el formulario por email a todas las direcciones del rango seleccionado.
+El rango es un vector vertical, con el siguiente contenido en secuencia:
+1- Subject, título del email
+2- Contenido del email
+3- entry_0, nombre del campo del email
+4- Lista de emails
+
+El parámetro hash indica si debe convertir las direcciones de email o no
+*/
+
+function enviarEmails(hash){
+  // Obtiene el rango
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  
+  // Contenido del email
+  var asunto = ss.getRangeByName('asunto').getValue();
+  var contenido = ss.getRangeByName('contenido').getValue();
+  var clave = ss.getRangeByName('clave').getValue();
+  var entry = ss.getRangeByName('entry').getValue();
+  var destinatarios = ss.getRangeByName('destinatario');
+  var destinatario;
+  
+  // Genera la url del formulario
+  var formUrl = direccionFormulario();
+  
+  // Recorre la lista de direcciones
+  var i=0;
+  while( destinatario = destinatarios.offset(i++,0,1,1).getValue() )
+    // Envía email
+    GmailApp.sendEmail(
+      destinatario,
+      asunto,
+      contenido.replace('%f',
+                        formUrl + '&' + entry + '=' + (hash? id(destinatario) : destinatario)
+                       ),
+      {noReply:true}
+    );
+}
+
+// Muestra una breve ayuda en pantalla
+function ayuda(){
+  Browser.msgBox(
+    'El menú "Seguimiento" se usa para enviar correos a una lista de destinatarios, con un enlace a este formulario.\n\n' +
+    '\nEl menú tiene estos comandos:\n' +
+    '"Enviar formulario por GMail" envía un email a cada destinatario, desde tu cuenta de GMail, y coloca en el campo ID del formulario un identificador del tipo dULt3urhQpP0fOMMu3VNyEparDxF4Pvr08/QQtETkYE, único para cada destinatario, que servirá para reconocer quién respondió, porque el identificador será siempre el mismo para el mismo destinatario (mientras se use la misma clave de encriptación).' +
+    '"Revelar autor en las respuestas" actúa sobre la columna ID en la hoja de respuestas, cambiando el identificador por la dirección de correo que le corresponde.' +
+    '"Ayudita" muestra este mensaje.'
+  );
+}
+
+// Obtiene la url del formulario.  Esta función se puede invocar desde celdas.
+function direccionFormulario(){
+  return SpreadsheetApp.getActive().getFormUrl();
+}
+
+// Revela los emails en el campo ID de las respuestas, reemplazando los hash por el valor original de la lista de emails
+function revelarAutores(){
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+
+  // Obtener lista de emails
+  var destinatarios = ss.getRangeByName("Destinatario");
+  var email, listaEmails = [], i=0;
+  while( email=destinatarios.offset(i++,0,1,1).getValue() )
+    listaEmails.push({email:email, hash:id(email)});
+  
+  // Obtener la columna de ID
+  var formularioHoja = ss.getSheetByName('Formulario');
+  var formularioColumnaId = eval(ss.getRangeByName("entry").getValue().slice(6)) + 2;// Funciona eval en GAS?
+  
+  // Reemplazar los hash
+  var hash, celda, j, i;
+  for(i=2; formularioHoja.getRange(i,1).getValue(); i++){// Verifica la marca temporal para saber si hay más respuestas
+    celda = formularioHoja.getRange(i, formularioColumnaId);
+    hash = celda.getValue();
+    j = listaEmails.length - 1;
+    while(hash!=listaEmails[j].hash && j--);
+    if(j>=0){
+      // hash encontrado, se reemplaza por la dirección de email
+      celda.setValue(listaEmails[j].email);
+    }
+  }
+}

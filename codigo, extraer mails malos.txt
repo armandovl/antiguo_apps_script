@@ -1,0 +1,56 @@
+function myFunction() {
+  
+var archivo = SpreadsheetApp.openById("1QpL-qKARmduQPtnvnnJO2gU_THqZ7x0UclMa-R7U8XQ") //llamar archivo por url
+var hoja = archivo.getSheetByName("Hoja 1");//llamar hoja por nombre
+ 
+//poner las condiciones de busqueda  
+var query = "from:mailer-daemon@googlemail.com";
+var query2 = "after:2019/09/25";
+
+//Hacer Búsqueda en Gmail
+
+var conversaciones = GmailApp.search(query+ " "+query2);
+
+//Obtener el núnero de encontrados
+  
+var largo =conversaciones.length;
+  
+  for(i=0;i<largo;i++){
+    
+    var numero =  i+1; // sumar
+    hoja.getRange("A"+ (i+2)).setValue(numero); //escribir el numero
+      
+    var fecha = conversaciones[i].getLastMessageDate();
+    hoja.getRange("B"+ (i+2)).setValue(fecha);  
+    
+    var de = conversaciones[i].getMessages()[0].getFrom();
+    hoja.getRange("C"+ (i+2)).setValue(de); 
+    
+    var asunto = conversaciones[i].getMessages()[0].getSubject();
+     hoja.getRange("D"+ (i+2)).setValue(asunto);
+    
+    var mensajePlano = conversaciones[i].getMessages()[1].getPlainBody();
+    hoja.getRange("E"+(i+2)).setValue(mensajePlano);
+    
+    //ponerle una etiqueta
+    var label = getGmailLabel_('malos');
+    conversaciones[i].addLabel(label);
+   
+    //archivar el mensaje
+    conversaciones[i].moveToArchive();
+    
+  
+  }
+  
+
+}
+
+
+function getGmailLabel_(name){
+  var label = GmailApp.getUserLabelByName(name);
+  if(!label){
+	label = GmailApp.createLabel(name);
+  }
+  return label;
+}
+

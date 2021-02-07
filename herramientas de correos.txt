@@ -1,0 +1,33 @@
+//aquí empieza la función se llama envioDeCorreos
+function envioDeCorreos() {
+  
+  //le decimos que nos traiga la hoja de cálculo en donde está alojado el script
+  var sps = SpreadsheetApp.getActiveSpreadsheet();
+  //si tiene varias hojas le decimos que solo queremos la primer hoja, la hoja cero
+  var sheet = sps.getSheets()[0];
+  
+  //Traemos los valores de esa hoja
+  var datos = sheet.getDataRange().getValues();
+  var nums = sheet.getDataRange().getNumRows() -1;
+  
+  //aquí empieza el ciclo "for" que sirve para recorre fila por fila 
+  for(var i = 1; i <= nums; i++){
+    
+    var email = datos[i][1]; //llamamos el email va estar en la segunda columna (1)
+    var nombre = datos[i][0]; //llamamos el nombre va estar en la primero columna (0)
+    var folio = datos[i][2]; //llamamos el nombre va estar en la tercer columna (2)
+
+    
+    //Aqui creamos la variable mensaje y la variable asunto
+    var mensaje="Estimad@ "+ nombre + " Le informamos que para completar su porceso de selección es importante contestar los 2 Test que están disponibles para usted desde este momento y hasta el día 25 de octubre a las 23:59hr, a través de estos 2 links podra contestar los 2 test: Habilidades Transversales https://forms.gle/XjnLFpQLeBQDoadT6 y Confianza y Acciones Colectivas https://forms.gle/N54qiegfCQ93ZvB2A , para  dar seguimiento a su proceso de selección su folio es: " + folio;
+    var asunto= "Convocatoria 2020 FOLIO: "+ folio ;
+   
+    //Aqui le decimos que envie los correos se compone de  email, asunto y mensaje
+    GmailApp.sendEmail(email, asunto, mensaje);
+
+    
+  } /*aqui acaba el for*/
+ 
+
+  
+} /*aqui acaba la funcion envioDECorreos*/

@@ -1,0 +1,166 @@
+function nada(){
+Browser.msgBox('Mensaje de Bienvenida');
+}
+
+
+function hacerconstancia() {
+
+  //crear una referencia a la hoja activa que es la que está llamando a este script
+  //se extraen los valores de todo el rango de celdas con datos
+  var sps = SpreadsheetApp.getActiveSpreadsheet();
+  //una spreadsheet tiene un arreglo de sheets, la 0 es la primera
+  var sheet = sps.getSheets()[0];
+  var datos = sheet.getDataRange().getValues();
+  var nums = sheet.getDataRange().getNumRows() -1;
+  
+ 
+  //recorrer los valores de las celdas 
+  //se comienza con 1 ya que la primera posición, la 0, tiene las cebeceras
+ 
+  var contadorFila=2;
+  
+   for(var i = 1; i <= nums; i++){
+    var fecha_cita = datos[i][41];
+    var folio = datos[i][1];
+    var perfil = datos[i][18];
+    var profesion = datos[i][20];
+    var sede = datos[i][36];
+    var direccion_sede = datos[i][37];
+    var municipio_sede = datos[i][35];
+    var estado_sede = datos[i][34];
+    var codigo = datos[i][0];
+    var curp = datos[i][5];
+    var nombre = datos[i][6];
+    var apellido_1 = datos[i][7];
+    var apellido_2 = datos[i][8];
+    var nombre_bueno= nombre+" "+apellido_1+" "+apellido_2;
+    var direccion_persona = datos[i][13];
+    var municipio_persona = datos[i][16];
+    var estado_persona = datos[i][17];
+    var correo = datos[i][3];
+    var telefono = datos[i][11];
+    var mail = datos[i][4];
+     var hora = datos[i][42];
+    var carrera = datos[i][22];
+    var comprobante = datos[i][24];
+    
+ //******************************dentro del for hacemos el QR
+    
+    var url = "https://chart.googleapis.com/chart?chs=100x100&cht=qr&chl=" + codigo;
+    var resp = UrlFetchApp.fetch(url); // transforma en imagen
+    
+   
+    
+    /**************Aquí hacemos la copia del archivo constancia************************/
+  
+    nombreCopia=("Ficha " + folio + " "+ nombre_bueno );
+
+    documentoCopiado= DriveApp.getFileById("1rZrcqzy9J-Dc79IJg9C3V5MpE1w0wbHTURHr55qT38k").makeCopy(nombreCopia);
+  
+    var idNuevoDocumento = (documentoCopiado.getId());
+  
+    /************* Aquí reemplazamos el texto en el nuevo documento **************************************/
+  
+    var documentoParaCambiarTexto = DocumentApp.openById(idNuevoDocumento);
+
+    documentoParaCambiarTexto.getBody().replaceText("XXNOMBREXX",nombre_bueno);
+    documentoParaCambiarTexto.getBody().replaceText("XXFECHAXX",fecha_cita);
+    documentoParaCambiarTexto.getBody().replaceText("XXPERFILXX",perfil);
+    documentoParaCambiarTexto.getBody().replaceText("XXPROFESIONXX",profesion);
+    documentoParaCambiarTexto.getBody().replaceText("XXFOLIOXX",folio);
+    documentoParaCambiarTexto.getBody().replaceText("XXSEDEXX",sede);
+    documentoParaCambiarTexto.getBody().replaceText("XXDIRECCIONSEDEXX",direccion_sede);
+    documentoParaCambiarTexto.getBody().replaceText("XXMUNICIPIOSEDEXX",municipio_sede);
+    documentoParaCambiarTexto.getBody().replaceText("XXESTADOSEDEXX",estado_sede);
+    documentoParaCambiarTexto.getBody().replaceText("XXCURPXX",curp);
+    documentoParaCambiarTexto.getBody().replaceText("XXDIRECCIONXX",direccion_persona);
+    documentoParaCambiarTexto.getBody().replaceText("XXMUNICIPIOXX",municipio_persona);
+    documentoParaCambiarTexto.getBody().replaceText("XXESTADOXX",estado_persona);
+    documentoParaCambiarTexto.getBody().replaceText("XXCORREOXX",correo);
+    documentoParaCambiarTexto.getBody().replaceText("XXTELEFONOXX",telefono);
+    documentoParaCambiarTexto.getBody().replaceText("XXHORAXX",hora);
+    documentoParaCambiarTexto.getBody().replaceText("XXCARRERAXX",carrera);
+    documentoParaCambiarTexto.getBody().replaceText("XXCOMPROBANTEXX",comprobante);
+    
+documentoParaCambiarTexto.getChild(9).asParagraph().appendInlineImage(resp.getBlob());
+documentoParaCambiarTexto.getChild(21).asParagraph().appendInlineImage(resp.getBlob());
+documentoParaCambiarTexto.getChild(33).asParagraph().appendInlineImage(resp.getBlob());
+documentoParaCambiarTexto.getChild(50).asParagraph().appendInlineImage(resp.getBlob());
+
+
+
+
+   
+   var hojaCalculo=SpreadsheetApp.openByUrl("https://docs.google.com/spreadsheets/d/1qeqrDqVSrOMJPHMgpUnz1tx8477S_-4exaD_9EeGmrM/edit#gid=0");  
+   var hojaDatos= hojaCalculo.getSheetByName('Hoja 1');
+   var ultimaFila= hojaDatos.getLastRow();   
+
+   hojaDatos.getRange(contadorFila, 31).setValue(idNuevoDocumento);
+
+
+   var contadorFila=contadorFila+1
+   
+  } //aquí acaba el for
+
+}
+
+
+function enviarMail() {
+  //crear una referencia a la hoja activa que es la que está llamando a este script
+  //se extraen los valores de todo el rango de celdas con datos
+  var sps = SpreadsheetApp.getActiveSpreadsheet();
+  //una spreadsheet tiene un arreglo de sheets, la 0 es la primera
+  var sheet = sps.getSheets()[0];
+  var datos = sheet.getDataRange().getValues();
+  var nums = sheet.getDataRange().getNumRows() -1;
+  
+  //var file = DriveApp.getFileById("1GjKeFtuAJiYWv3AkQdT7eXWS5Tnn3MTr9wHx9BsETyo");
+  
+  
+  
+  //recorrer los valores de las celdas 
+  //se comienza con 1 ya que la primera posición, la 0, tiene las cebeceras
+ 
+  
+  for(var i = 1; i <= nums; i++){
+    var email = datos[i][4];
+    var nombre = datos[i][6];
+    var apellido_1 = datos[i][7];
+    var apellido_2 = datos[i][8];
+    var nombre_bueno= nombre+" "+apellido_1+" "+apellido_2;
+    var folio = datos[i][1];
+    var idDocumento= datos[i][30];
+    
+    
+    
+    var ficha_registro=  DriveApp.getFileById(idDocumento);
+    var requisitos=  DriveApp.getFileById("19wu0n6skJLaqMfobPQ9koeZWQzmirSdK");
+    
+    var mensaje="Estimad@: "+ nombre_bueno +" \n" + "Con folio:" + folio + "\n"+ "Usted ha sido pre - seleccionado, para pasar a la siguiente etapa de la Convocatoria Sembrando Vida 2020, por lo cual es impórtate acudir a la Sede que se especifica en su Acuse, para poder continuar con su proceso de selección"+"\n"+ "Por favor revise el archivo REQUISITOS y la FICHA de registro anexa"+"\n"+"No responda ni reenvie este correo";
+    
+    GmailApp.sendEmail(email,folio +" Convocatoria 2020 ", mensaje, {attachments:[ficha_registro,requisitos]});
+
+    
+  } /*aqui acaba el for*/
+   
+}
+
+// *******************aquí va el menú**********************
+function onOpen() {
+  var menusX = SpreadsheetApp.getUi();
+  menusX.createMenu('Nuevo Menú')
+      .addItem('Nada', 'nada')
+      .addSeparator()
+      
+      .addItem('Hacer Constancias','hacerconstancia')
+      //.addSeparator() 
+      
+      .addItem('Enviar mail','enviarMail')
+      //.addSeparator()
+      
+
+          
+      .addToUi();
+}
+
+

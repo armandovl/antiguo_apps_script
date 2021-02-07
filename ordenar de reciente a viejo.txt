@@ -1,0 +1,15 @@
+function ordenarRecienteViejo(){
+  //activar la hoja
+  var spreadsheet = SpreadsheetApp.getActive();
+  
+  //activar el rango
+  spreadsheet.getRange('A:O').activate();
+  
+  //crear filtro de ese rango
+  spreadsheet.getRange('A:O').createFilter();
+  
+  //filtro, true a-z false z-a false= mas reciente a mas viejo
+  spreadsheet.getActiveSheet().getFilter().sort(1, false);
+  //desactivar filtro
+  spreadsheet.getActiveSheet().getFilter().remove();
+}

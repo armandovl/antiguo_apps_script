@@ -1,0 +1,46 @@
+function enviarMail() {
+  //crear una referencia a la hoja activa que es la que está llamando a este script
+  //se extraen los valores de todo el rango de celdas con datos
+  var sps = SpreadsheetApp.getActiveSpreadsheet();
+  //una spreadsheet tiene un arreglo de sheets, la 0 es la primera
+  var sheet = sps.getSheets()[0];
+  var datos = sheet.getDataRange().getValues();
+  var nums = sheet.getDataRange().getNumRows() -1;
+  
+  //var file = DriveApp.getFileById("1GjKeFtuAJiYWv3AkQdT7eXWS5Tnn3MTr9wHx9BsETyo");
+  
+  
+  
+  //recorrer los valores de las celdas 
+  //se comienza con 1 ya que la primera posición, la 0, tiene las cebeceras
+ 
+  
+  for(var i = 1; i <= nums; i++){
+    var email = datos[i][4];
+    var nombre = datos[i][2];
+    var apellidos = datos[i][3];
+    var usuario = datos[i][0];
+    var contrasena = datos[i][1] ;
+    
+
+    
+    //var invitacion=  DriveApp.getFileById(idDocumento);
+    var mensaje="Estimad@ " + nombre + " " + apellidos + "\n" + "Programa Sembrando Vida"+ "\n";
+    var mensaje2= "\n" + "Con el gusto de saludarte, hacemos uso de este medio para informarte que la Dirección General de Instrumentación de los Programas Agroforestales ha logrado diseñar y desarrollar un espacio virtual denominado, “Comunidad de Aprendizaje Digital” para contribuir a fortalecer el desarrollo de capacidades de nuestra estructura técnica"+ "\n" + "\n"+ "Para que puedas tener acceso a esta herramienta deberás ingresar al siguiente Link:"+ "\n" + "\n" + "http://sembrando-vida.com/seguimiento/"+ "\n" + "\n" + "Para poder ingresar estos son tus datos:" + "\n";
+    var mensaje3= "\n" + "Usuario: " + usuario + "\n" + "Contraseña: "+ contrasena + "\n" + "\n";
+    var mensaje4= "\n" + "Te exhortamos a que visites y hagas uso de esta herramienta, esperando que los materiales existentes te sean de utilidad. Para preguntas sobre la CAD puedes marcar a 5553285000 extensión 51008 con Ramón Valdés" + "\n" +"\n" + "Bienvenid@ a la Comunidad" + "\n" + "\n" + "\n" + "M.C. JULIO CESAR GERONIMO CASTILLO" +"\n" + "Dirección General de Instrumentación de Programas de Agroforesteria";
+
+    //GmailApp.sendEmail([email,'rvaldes@nuvartic.com'], "Asunto del correo", mensaje + mensaje2 );
+    MailApp.sendEmail({
+      to: email,
+      subject: "ALTA CAD",
+      body: mensaje + mensaje2 + mensaje3 + mensaje4,
+      bcc:'sembrandosaberes@nuvartic.com'
+    
+    })
+    
+  } /*aqui acaba el for*/
+ 
+
+  
+}

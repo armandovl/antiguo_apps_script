@@ -1,0 +1,69 @@
+function mostrarCasillasIteradas(){
+
+//referencia al Libro activo
+var libro =SpreadsheetApp.getActive()
+ 
+//indicamos que queremos los datas del libro
+var Datos_Hojas_Activa = libro.getDataRange();
+
+//iterar para no utilizar la cabecera le indicamos que las filas son -1
+
+var Numero_de_Filas = Datos_Hojas_Activa.getNumRows() -1;
+
+//indicar que los valores se los vamos a pedir en array [filas][columnas] 
+var valores = Datos_Hojas_Activa.getValues();
+
+    for (i=1; i<=Numero_de_Filas; i++){
+    
+    //primero son filas luego columnas, espieza en cero
+    var nombre=  valores[i][1];
+    var correo=  valores[i][6];
+    var usuario =  valores[i][11];
+    var contrasena= valores[i][12];
+    
+    /*
+    Importante si ejecuto el mensaje  antes de que termine el For
+    me va a iterar todo
+    */
+    
+    //Browser.msgBox(nombre + edad + experiencia + mail);
+    
+    }//aquí acaba el for
+  
+  
+  /**************Aquí hacemos la copia del archivo constancia************************/
+  
+  nombreCopia=("Certificado_de_" + nombre);
+
+  documentoCopiado= DriveApp.getFileById("1zz0N7Lszj8otx72HeJ97VY07hPo8G6vMqPeykVxe2Hw").makeCopy(nombreCopia);
+
+  //Browser.msgBox(documentoCopiado.getId());
+  
+  var idNuevoDocumento = (documentoCopiado.getId());
+  
+  /************* Aquí reemplazamos el texto en el nuevo documento **************************************/
+  
+  var documentoParaCambiarTexto = DocumentApp.openById(idNuevoDocumento);
+
+  documentoParaCambiarTexto.getBody().replaceText("XNOMBRE__COMPLETOX",nombre);
+  
+  
+  /************* Aquí enviamos el correo**************************************/
+
+    
+    /* si ejecuto desde aqui solo ejecuta la última fila*/
+    //Browser.msgBox(usuario);
+    //GmailApp.sendEmail(mail, "asunto", "funciona!!!")
+  
+
+
+}
+
+
+
+function enviarArchivoPorGmail() {
+
+var documentoParaEnviar = DriveApp.getFileById("1kqSqas9coCYokoPW_Zev_GgiDWIs-BfUaI27RFY3Hww");
+GmailApp.sendEmail("valdes.gam@gmail.com", "Asunto", "mensaje", {attachments:[documentoParaEnviar]});
+
+}

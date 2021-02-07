@@ -1,0 +1,207 @@
+function myFunction(e) {
+  
+  /*me trae la hoja que se llama respuestas*/
+  var Sheet= SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Respuestas');
+  var arrayValores= Sheet.getDataRange().getValues();
+  var ultimaFila= Sheet.getLastRow();
+  
+  var marcaTemporal= e.values[0];
+  var estado= e.values[1];
+  var enlace= e.values[2];
+  var nombreTecnico= e.values[3];
+  var tipoTecnico= e.values[4];
+  var tipoContrato= e.values[5];
+  var validacion1A= e.values[6];
+  var validacion1B= e.values[7];
+  var entrega1= e.values[8];
+  var validacion2= e.values[9];
+  var entrega2= e.values[10];
+  var validacion3= e.values[11];
+  var entrega3= e.values[12]
+  var validacion4= e.values[13];
+  var entrega4= e.values[14];
+  
+  var i=2;
+  var sw=0;
+  
+  /********************************************************************
+  var validacion1Aexistente= Sheet.getDataRange().getCell(i, 7).getValue();
+  
+  var validacion1Bexistente= Sheet.getDataRange().getCell(i, 8).getValue();
+  var entrega1existente= Sheet.getDataRange().getCell(i, 9).getValue();
+  
+  var validacion2existente= Sheet.getDataRange().getCell(i, 10).getValue();
+  var entrega2existente= Sheet.getDataRange().getCell(i, 11).getValue();
+  
+  var validacion3existente= Sheet.getDataRange().getCell(i, 12).getValue();
+  var entrega3existente= Sheet.getDataRange().getCell(i, 13).getValue();
+  
+  var validacion4existente= Sheet.getDataRange().getCell(i, 14).getValue();
+  var entrega4existente= Sheet.getDataRange().getCell(i, 15).getValue();
+  /*********************************************************************/
+  
+  while(i<ultimaFila){
+  var nombreTecnicoSheet= Sheet.getDataRange().getCell(i, 4).getValue();
+  
+    if(nombreTecnicoSheet==nombreTecnico){
+      
+      
+      //var funciona= Sheet.getRange().getCell(i, 7).getValue();
+      
+      Sheet.getRange(i, 1).setValue(marcaTemporal);
+      Sheet.getRange(i, 2).setValue(estado);
+      Sheet.getRange(i, 3).setValue(enlace);
+      Sheet.getRange(i, 4).setValue(nombreTecnico);
+      Sheet.getRange(i, 5).setValue(tipoTecnico);
+      Sheet.getRange(i, 6).setValue(tipoContrato);
+      Sheet.getRange(i, 7).setValue(validacion1A);
+      Sheet.getRange(i, 8).setValue(validacion1B);
+      Sheet.getRange(i, 9).setValue(entrega1);
+      Sheet.getRange(i, 10).setValue(validacion2);
+      Sheet.getRange(i, 11).setValue(entrega2);
+      Sheet.getRange(i, 12).setValue(validacion3);
+      Sheet.getRange(i, 13).setValue(entrega3);
+      Sheet.getRange(i, 14).setValue(validacion4);
+      Sheet.getRange(i, 15).setValue(entrega4);
+      sw=1;        
+    }
+  i++;
+  }
+
+ /* if(sw == 1){
+    Sheet.deleteRow(ultimaFila);
+  }*/
+  
+ /*ordenarRecienteViejo();*/
+ copiarOtroLibroSaltando();
+  
+}
+
+function ordenarRecienteViejo(){
+  //activar la hoja
+  var spreadsheet = SpreadsheetApp.getActive();
+  
+  //activar el rango
+  spreadsheet.getRange('A:O').activate();
+  
+  //crear filtro de ese rango
+  spreadsheet.getRange('A:O').createFilter();
+  
+  //filtro, true a-z false z-a false= mas reciente a mas viejo
+  spreadsheet.getActiveSheet().getFilter().sort(1, false);
+  //desactivar filtro
+  spreadsheet.getActiveSheet().getFilter().remove();
+}
+
+function copiarOtroLibroSaltando() {
+  
+  /**la ultima hoja**/
+  var Sheet= SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Respuestas');
+  var arrayValores= Sheet.getDataRange().getValues();
+  var ultimaFila= Sheet.getLastRow();
+  /**la ultima hoja**/
+  
+  var libro=SpreadsheetApp.getActiveSpreadsheet(); //me llama el libro activo 
+  var hoja= libro.getSheets()[0]; //llama a la primer hoja
+  var rangoParaCopiar = hoja.getRange(ultimaFila, 1, 1, 15).getValues();   //(fila, columna, nombre de filas, nombre de columnas)
+  
+
+  
+  //vamos a llamar a la hoja en donde se va a pegar  mediante su URL
+  
+  var archivoParaPegar =SpreadsheetApp.openByUrl("https://docs.google.com/spreadsheets/d/1PhZkdUzuZojn9tSbQtiayaqgWIwoIHTSuYz-wK3t7eI/edit#gid=0");
+  //llamar la hoja mediante el numero de hoja
+  var hojaDondeSePega= archivoParaPegar.getSheets();
+  var hojaDondeSePega2 = hojaDondeSePega[0];
+  
+  //indicamos que queremos los datas de la hoja activa pero de donde se copia
+   var Datos_Hojas_Activa = hojaDondeSePega2.getDataRange();
+  
+  
+  //iterar para no utilizar la cabecera le indicamos que las filas son -1
+  
+  var Numero_de_Filas = Datos_Hojas_Activa.getNumRows()+1;
+  
+  //Pegar rango (fila, columna, numero filas, numero columnas)
+   hojaDondeSePega2.getRange(Numero_de_Filas,1,1,15).setValues(rangoParaCopiar);
+ 
+}
+
+
+
+
+function enviarMail(){
+var archivoAnexo = DriveApp.getFileById("1PhZkdUzuZojn9tSbQtiayaqgWIwoIHTSuYz-wK3t7eI");
+GmailApp.sendEmail("politicas.publicas@ciestaam.edu.mx", "Actualización de Base PROCAFE", "Se han actualizado las validaciones y/o entregas de los técnicos durante las últimas 12 horas. En el archivo anexo se muestra el nombre de los técnicos cuyos datos se actualizaron en las últimas 12 horas", {attachments:[archivoAnexo]});
+crearCopiaYCompartir();
+
+
+}
+
+function borrarTodo(){
+  
+  //vamos a llamar a la hoja en donde se va a pegra  mediante su URL
+  
+  var archivoParaPegar =SpreadsheetApp.openByUrl("https://docs.google.com/spreadsheets/d/1PhZkdUzuZojn9tSbQtiayaqgWIwoIHTSuYz-wK3t7eI/edit#gid=0");
+  //llamar la hoja mediante el numero de hoja
+  var hojaDondeSePega= archivoParaPegar.getSheets();
+  var hojaDondeSePega2 = hojaDondeSePega[0];
+
+  hojaDondeSePega2.getRange('A2:O2').activate();
+  hojaDondeSePega2.getSelection().getNextDataRange(SpreadsheetApp.Direction.DOWN).activate();
+  hojaDondeSePega2.getActiveRangeList().clear({contentsOnly: true, skipFilteredRows: true});
+  
+}
+
+function enviarYBorrar(){
+var archivoParaPegar =SpreadsheetApp.openByUrl("https://docs.google.com/spreadsheets/d/1PhZkdUzuZojn9tSbQtiayaqgWIwoIHTSuYz-wK3t7eI/edit#gid=0");
+  //llamar la hoja mediante el numero de hoja
+  var hojaDondeSePega= archivoParaPegar.getSheets();
+  var hojaDondeSePega2 = hojaDondeSePega[0];
+  
+  //indicamos que queremos los datas de la hoja activa pero de donde se copia
+   var Datos_Hojas_Activa = hojaDondeSePega2.getDataRange();
+  
+  
+  //iterar para no utilizar la cabecera le indicamos que las filas son -1
+  
+  var Numero_de_Filas = Datos_Hojas_Activa.getNumRows();
+  
+  if(Numero_de_Filas>=2){
+  enviarMail();
+  borrarTodo();
+  
+  }
+  
+}
+
+
+function crearCopiaYCompartir(){
+  var fecha= new Date();
+  var nombre= "Base de Validaciones Actualizadas hasta la fecha: "+ fecha;
+   documentoCopiado= DriveApp.getFileById("1PhZkdUzuZojn9tSbQtiayaqgWIwoIHTSuYz-wK3t7eI").makeCopy(nombre);
+   documentoCopiado.addEditor("politicas.publicas@ciestaam.edu.mx");
+
+}
+
+function removeRDuplicados() {
+  var sheet = SpreadsheetApp.getActiveSheet();
+  var data = sheet.getDataRange().getValues();
+  var newData = new Array();
+  for(i in data){
+    var row = data[i];
+    var duplicate = false;
+    for(j in newData){
+      if(row.join() == newData[j].join()){
+        duplicate = true;
+      }
+    }
+    if(!duplicate){
+      newData.push(row);
+    }
+  }
+  sheet.clearContents();
+  sheet.getRange(1, 1, newData.length, newData[0].length)
+      .setValues(newData);
+}
+
